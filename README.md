@@ -96,6 +96,12 @@ secrets. El rol puede escribir en el bucket del sitio e invalidar esa distribuci
 El bucket es privado. CloudFront lo lee con Origin Access Control, los assets con hash se suben
 con cache de un año y el `index.html` sin cache, y cada deploy invalida la distribución.
 
+Un detalle por si alguien reproduce esto: GitHub ya emite el claim `sub` con los identificadores
+inmutables del dueño y del repositorio incrustados
+(`repo:usuario@<id>/repo@<id>:ref:refs/heads/main`), no solo con los nombres. La política de
+confianza tiene que compararse contra esa forma o el `AssumeRoleWithWebIdentity` sale con
+`AccessDenied` sin más explicación. Se ve en CloudTrail.
+
 ## Más allá de los requisitos, y por qué
 
 En la entrevista, quien me entrevistó comentó que esperan que los desarrolladores usen IA para

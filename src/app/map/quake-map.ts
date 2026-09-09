@@ -38,6 +38,10 @@ export class QuakeMap implements AfterViewInit {
       const map = this.map;
       if (!map) return;
       map.getSource<GeoJSONSource>(SOURCE_ID)?.setData(toCollection(features));
+      // Mirrors what the layer is holding onto the DOM, so the end to end tests
+      // can check the map and the list against each other without reaching
+      // into the WebGL canvas.
+      this.container().nativeElement.dataset['quakeCount'] = String(features.length);
       // setData drops every feature state, so put the current ones back once
       // the new data has settled.
       map.once('idle', () => this.applyFeatureStates());
@@ -128,6 +132,7 @@ export class QuakeMap implements AfterViewInit {
         },
       });
 
+      this.container().nativeElement.dataset['quakeCount'] = String(this.store.visible().length);
       this.styleReady.set(true);
       this.applyFeatureStates();
     });
@@ -136,6 +141,11 @@ export class QuakeMap implements AfterViewInit {
       const [feature] = map.queryRenderedFeatures(event.point, { layers: [LAYER_ID] });
       const eventId = feature?.properties?.['eventId'];
       this.store.select(typeof eventId === 'string' ? eventId : null);
+    });
+
+    map.on('moveend', () => {
+      const { lng, lat } = map.getCenter();
+      this.container().nativeElement.dataset['mapCenter'] = `${lng.toFixed(3)},${lat.toFixed(3)}`;
     });
 
     map.on('mousemove', LAYER_ID, (event) => {

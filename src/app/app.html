@@ -13,7 +13,19 @@
     <p class="bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">{{ store.error() }}</p>
   }
 
-  <main class="min-h-0 flex-1">
-    <app-quake-map />
-  </main>
+  <div class="flex min-h-0 flex-1">
+    <aside class="flex w-96 shrink-0 flex-col border-r border-slate-300 bg-white">
+      @if (store.status() === 'loading') {
+        <p class="px-4 py-6 text-sm text-slate-500">Cargando sismos...</p>
+      } @else {
+        <div class="min-h-0 flex-1 overflow-y-auto">
+          <app-quake-list />
+        </div>
+      }
+    </aside>
+
+    <main class="min-h-0 flex-1">
+      <app-quake-map />
+    </main>
+  </div>
 </div>

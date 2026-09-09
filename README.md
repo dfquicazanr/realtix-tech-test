@@ -52,6 +52,11 @@ derivado del arreglo filtrado, que cambia con cada filtro) y el source lo declar
 `promoteId`. Así el hover repinta los círculos afectados en vez de reconstruir la capa en cada
 movimiento del puntero. Los wrappers de Angular sobre MapLibre estorban justamente para esto.
 
+**El worker de MapLibre se sirve como asset.** maplibre-gl carga su worker de teselas como un
+módulo aparte que ni el dev server ni el bundle de producción emiten, así que se copia a
+`maplibre/` desde `angular.json` y se apunta ahí con `setWorkerUrl` en `main.ts`. Sin eso el
+mapa nunca termina de inicializar y queda en blanco.
+
 **Tailwind** para estilos, sin sistema de diseño propio.
 
 ## Pruebas

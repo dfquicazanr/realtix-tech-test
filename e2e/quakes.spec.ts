@@ -45,7 +45,8 @@ test('clic en una tarjeta mueve el mapa hasta el sismo y abre su detalle', async
 test('mover un filtro reduce la lista y el mapa a la vez', async ({ page }) => {
   await page.goto('/');
   await expect(cards(page)).toHaveCount(SAMPLES.length);
-  expect(await mapCount(page)).toBe(SAMPLES.length);
+  // The layer is populated once the map style is ready, a beat after the list.
+  await expect(map(page)).toHaveAttribute('data-quake-count', String(SAMPLES.length));
 
   // Magnitude 6.0 and up: three of the six samples.
   const expected = SAMPLES.filter((sample) => sample.mag >= 6).length;

@@ -28,6 +28,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "maplibre-gl-worker.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "maplibre"
+              },
+              {
+                "glob": "maplibre-gl-shared.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "maplibre"
               }
             ],
             "styles": [
@@ -69,7 +79,14 @@
               "buildTarget": "realtix-tech-test:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "prebundle": {
+              "exclude": [
+                "maplibre-gl"
+              ]
+            }
+          }
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"
@@ -86,6 +103,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "maplibre-gl-worker.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "maplibre"
+              },
+              {
+                "glob": "maplibre-gl-shared.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "maplibre"
               }
             ],
             "styles": [

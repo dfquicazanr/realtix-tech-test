@@ -8,6 +8,8 @@ import type { Feature, FeatureCollection, Point } from 'geojson';
  */
 export interface QuakeProperties {
   quakeId: number;
+  /** USGS event id, copied into properties so map click handlers can read it. */
+  eventId: string;
   mag: number;
   place: string;
   time: number;

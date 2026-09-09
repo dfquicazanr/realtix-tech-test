@@ -47,6 +47,7 @@ export function parseQuakes(raw: unknown): Quake[] {
       geometry: { type: 'Point', coordinates: [lon, lat] },
       properties: {
         quakeId: quakes.length,
+        eventId: id,
         mag,
         place: str(props['place']) ?? 'Unknown location',
         time,

@@ -37,6 +37,8 @@ export class QuakesStore {
     return id === null ? null : (this.visible().find((q) => q.id === id) ?? null);
   });
 
+  readonly byId = computed(() => new Map(this.quakes().map((quake) => [quake.id, quake])));
+
   readonly dateBounds = computed<Range>(() => [this.now - 30 * DAY_MS, this.now]);
 
   async load(): Promise<void> {

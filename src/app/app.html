@@ -1,0 +1,19 @@
+<div class="flex h-screen flex-col bg-slate-100 text-slate-900">
+  <header class="flex items-baseline gap-3 border-b border-slate-300 bg-white px-4 py-3">
+    <h1 class="text-lg font-semibold">Sismos M4.5+</h1>
+    <p class="text-sm text-slate-500">Últimos 30 días, feed público de USGS</p>
+    @if (store.status() === 'ready') {
+      <p class="ml-auto text-sm text-slate-600" data-testid="visible-count">
+        {{ store.visible().length }} de {{ store.quakes().length }}
+      </p>
+    }
+  </header>
+
+  @if (store.status() === 'error') {
+    <p class="bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">{{ store.error() }}</p>
+  }
+
+  <main class="min-h-0 flex-1">
+    <app-quake-map />
+  </main>
+</div>

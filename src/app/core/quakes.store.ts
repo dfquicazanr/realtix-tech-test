@@ -61,6 +61,11 @@ export class QuakesStore {
     this.hoveredId.set(id);
   }
 
+  resetFilters(): void {
+    this.magRange.set(MAG_BOUNDS);
+    this.dateRange.set(this.dateBounds());
+  }
+
   setMagRange(range: Range): void {
     this.magRange.set(range);
   }

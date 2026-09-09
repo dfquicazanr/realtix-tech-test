@@ -4,6 +4,8 @@ SPA en Angular 20 y MapLibre GL que muestra los sismos de magnitud 4.5 o mayor d
 30 días, tomados del feed público de USGS. El mapa y el listado leen del mismo estado, así que
 lo que se ve en uno siempre coincide con lo que se ve en el otro.
 
+**Desplegado en https://d2xljcyv699q75.cloudfront.net**
+
 - Fuente de datos: `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson`
 - Mapa base: `https://demotiles.maplibre.org/style.json` (sin API key)
 
@@ -82,9 +84,17 @@ un fixture para poder afirmar conteos exactos sin depender de qué esté temblan
 Para que los e2e puedan comprobar el estado del mapa sin entrar al canvas de WebGL, el
 contenedor del mapa expone cuántos features tiene y dónde está centrado en dos data attributes.
 
-## CI
+## CI y deploy
 
-GitHub Actions en cada push y cada pull request: `install → lint → test → build → e2e`.
+GitHub Actions en cada push y cada pull request: `install → lint → test → build → e2e`. En `main`,
+si todo eso pasa, despliega a S3 y CloudFront.
+
+Actions se autentica contra AWS por OIDC, asumiendo un rol cuya política de confianza solo acepta
+tokens de este repositorio y de la rama `main`. No hay llaves de larga duración guardadas como
+secrets. El rol puede escribir en el bucket del sitio e invalidar esa distribución, nada más.
+
+El bucket es privado. CloudFront lo lee con Origin Access Control, los assets con hash se suben
+con cache de un año y el `index.html` sin cache, y cada deploy invalida la distribución.
 
 ## Más allá de los requisitos, y por qué
 

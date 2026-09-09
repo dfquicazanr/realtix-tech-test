@@ -90,7 +90,11 @@ export class QuakeMap implements AfterViewInit {
         paint: {
           'circle-radius': [
             'case',
-            ['boolean', ['feature-state', 'selected'], false],
+            [
+              'any',
+              ['boolean', ['feature-state', 'selected'], false],
+              ['boolean', ['feature-state', 'hover'], false],
+            ],
             ['+', ['interpolate', ['linear'], ['get', 'mag'], 4.5, 4, 6, 8, 8, 16], 4],
             ['interpolate', ['linear'], ['get', 'mag'], 4.5, 4, 6, 8, 8, 16],
           ],
@@ -98,12 +102,18 @@ export class QuakeMap implements AfterViewInit {
             'case',
             ['boolean', ['feature-state', 'selected'], false],
             '#1d4ed8',
+            ['boolean', ['feature-state', 'hover'], false],
+            '#facc15',
             '#f97316',
           ],
           'circle-opacity': 0.8,
           'circle-stroke-width': [
             'case',
-            ['boolean', ['feature-state', 'selected'], false],
+            [
+              'any',
+              ['boolean', ['feature-state', 'selected'], false],
+              ['boolean', ['feature-state', 'hover'], false],
+            ],
             3,
             1,
           ],
@@ -111,6 +121,8 @@ export class QuakeMap implements AfterViewInit {
             'case',
             ['boolean', ['feature-state', 'selected'], false],
             '#1e3a8a',
+            ['boolean', ['feature-state', 'hover'], false],
+            '#a16207',
             '#7c2d12',
           ],
         },
@@ -126,23 +138,37 @@ export class QuakeMap implements AfterViewInit {
       this.store.select(typeof eventId === 'string' ? eventId : null);
     });
 
-    map.on('mouseenter', LAYER_ID, () => (map.getCanvas().style.cursor = 'pointer'));
-    map.on('mouseleave', LAYER_ID, () => (map.getCanvas().style.cursor = ''));
+    map.on('mousemove', LAYER_ID, (event) => {
+      map.getCanvas().style.cursor = 'pointer';
+      const eventId = event.features?.[0]?.properties?.['eventId'];
+      this.store.hover(typeof eventId === 'string' ? eventId : null);
+    });
+
+    map.on('mouseleave', LAYER_ID, () => {
+      map.getCanvas().style.cursor = '';
+      this.store.hover(null);
+    });
   }
 
-  /** Mirrors the store's selection onto the layer through feature state. */
+  /**
+   * Mirrors the store's selection and hover onto the layer through feature
+   * state, which repaints the two affected circles instead of rebuilding the
+   * layer on every pointer move.
+   */
   private applyFeatureStates(): void {
     const map = this.map;
     if (!map || !map.getSource(SOURCE_ID)) return;
 
     map.removeFeatureState({ source: SOURCE_ID });
 
-    const selected = this.store.selectedId();
-    if (selected !== null) {
-      const quakeId = this.store.byId().get(selected)?.properties.quakeId;
-      if (quakeId !== undefined) {
-        map.setFeatureState({ source: SOURCE_ID, id: quakeId }, { selected: true });
-      }
-    }
+    this.setState(this.store.selectedId(), 'selected');
+    this.setState(this.store.hoveredId(), 'hover');
+  }
+
+  private setState(eventId: string | null, key: 'selected' | 'hover'): void {
+    if (eventId === null) return;
+    const quakeId = this.store.byId().get(eventId)?.properties.quakeId;
+    if (quakeId === undefined) return;
+    this.map?.setFeatureState({ source: SOURCE_ID, id: quakeId }, { [key]: true });
   }
 }

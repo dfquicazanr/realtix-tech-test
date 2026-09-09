@@ -24,8 +24,13 @@ import { QuakesStore } from '../core/quakes.store';
             [class.ring-inset]="store.selectedId() === quake.id"
             [class.ring-blue-500]="store.selectedId() === quake.id"
             [attr.aria-current]="store.selectedId() === quake.id"
+            [class.bg-amber-50]="store.hoveredId() === quake.id"
             data-testid="quake-card"
             (click)="store.select(quake.id)"
+            (mouseenter)="store.hover(quake.id)"
+            (mouseleave)="store.hover(null)"
+            (focus)="store.hover(quake.id)"
+            (blur)="store.hover(null)"
           >
             <span
               class="mt-0.5 shrink-0 rounded px-2 py-1 text-sm font-semibold tabular-nums text-white"

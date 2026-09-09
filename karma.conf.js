@@ -1,18 +1,48 @@
-// Karma needs a Chrome binary. Playwright already downloads one for the e2e
-// suite, so both suites run on the same browser locally and in CI.
+// Karma configuration file, see link for more information
+// https://karma-runner.github.io/1.0/config/configuration-file.html
+
+// Karma needs a Chrome binary. Playwright already downloads one for the end to
+// end suite, so both suites run on the same browser locally and in CI.
 process.env.CHROME_BIN =
   process.env.CHROME_BIN || require('@playwright/test').chromium.executablePath();
 
 module.exports = function (config) {
   config.set({
-    browsers: ['ChromeHeadlessNoSandbox'],
+    basePath: '',
+    frameworks: ['jasmine'],
+    plugins: [
+      require('karma-jasmine'),
+      require('karma-chrome-launcher'),
+      require('karma-jasmine-html-reporter'),
+      require('karma-coverage'),
+    ],
+    client: {
+      jasmine: {
+        // you can add configuration options for Jasmine here
+        // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
+        // for example, you can disable the random execution with `random: false`
+        // or set a specific seed with `seed: 4321`
+      },
+    },
+    jasmineHtmlReporter: {
+      suppressAll: true // removes the duplicated traces
+    },
+    coverageReporter: {
+      dir: require('path').join(__dirname, './coverage/realtix-tech-test'),
+      subdir: '.',
+      reporters: [
+        { type: 'html' },
+        { type: 'text-summary' }
+      ]
+    },
+    reporters: ['progress', 'kjhtml'],
+    browsers: ['Chrome'],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
       },
     },
-    reporters: ['progress'],
-    restartOnFileChange: true,
+    restartOnFileChange: true
   });
 };

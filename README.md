@@ -1,5 +1,8 @@
 # Sismos M4.5+, visor geográfico interactivo
 
+[![CI](https://github.com/dfquicazanr/realtix-tech-test/actions/workflows/ci.yml/badge.svg)](https://github.com/dfquicazanr/realtix-tech-test/actions/workflows/ci.yml)
+[![cobertura](https://img.shields.io/badge/cobertura-89%25%20sentencias-brightgreen)](https://d2xljcyv699q75.cloudfront.net/coverage/index.html)
+
 SPA en Angular 20 y MapLibre GL que muestra los sismos de magnitud 4.5 o mayor de los últimos
 30 días, tomados del feed público de USGS. El mapa y el listado leen del mismo estado, así que
 lo que se ve en uno siempre coincide con lo que se ve en el otro.
@@ -84,10 +87,53 @@ un fixture para poder afirmar conteos exactos sin depender de qué esté temblan
 Para que los e2e puedan comprobar el estado del mapa sin entrar al canvas de WebGL, el
 contenedor del mapa expone cuántos features tiene y dónde está centrado en dos data attributes.
 
+### Cobertura
+
+`npm run test:ci` la genera con Istanbul. CI la publica junto con el sitio, así que el reporte
+navegable, con el detalle línea por línea, está en
+**https://d2xljcyv699q75.cloudfront.net/coverage/index.html** y también queda como artefacto de
+cada corrida en Actions.
+
+| Archivo | Sentencias | Ramas | Funciones | Líneas |
+| --- | --- | --- | --- | --- |
+| `core/filter.ts` | 100% | 100% | 100% | 100% |
+| `core/quakes.store.ts` | 91.9% | 66.7% | 75% | 96.8% |
+| `core/usgs.service.ts` | 84.8% | 90.3% | 75% | 85.2% |
+| **Total** | **89.3%** | **87.8%** | **77.8%** | **92.1%** |
+
+Son los tres archivos que tienen lógica. Los componentes no aparecen aquí a propósito: lo que
+hay que probar en ellos es que el clic mueva el mapa y que el filtro recorte las dos vistas a la
+vez, y eso lo cubren los e2e, que ejercitan el navegador de verdad. Perseguir el 100% en los
+componentes con unitarias solo produciría pruebas que repiten el template.
+
 ## CI y deploy
 
-GitHub Actions en cada push y cada pull request: `install → lint → test → build → e2e`. En `main`,
-si todo eso pasa, despliega a S3 y CloudFront.
+GitHub Actions en cada push y cada pull request. En `main`, si todo pasa, despliega a S3 y
+CloudFront.
+
+```mermaid
+flowchart TD
+    A([push o pull request]) --> B[npm ci]
+
+    subgraph verify [job verify]
+        B --> C[lint]
+        C --> D[unitarias en ChromeHeadless<br/>con cobertura]
+        D --> E[build de produccion]
+        E --> F[e2e con Playwright]
+    end
+
+    F --> G{rama main?}
+    G -- no --> H([fin, la rama queda verificada])
+    G -- si --> I
+
+    subgraph deploy [job deploy]
+        I[asume el rol por OIDC] --> J[sync del sitio a S3]
+        J --> K[sync del reporte de cobertura]
+        K --> L[invalidacion de CloudFront]
+    end
+
+    L --> M([sitio y cobertura publicados])
+```
 
 Actions se autentica contra AWS por OIDC, asumiendo un rol cuya política de confianza solo acepta
 tokens de este repositorio y de la rama `main`. No hay llaves de larga duración guardadas como
@@ -105,7 +151,7 @@ confianza tiene que compararse contra esa forma o el `AssumeRoleWithWebIdentity`
 ## Más allá de los requisitos, y por qué
 
 En la entrevista, quien me entrevistó comentó que esperan que los desarrolladores usen IA para
-desarrollar. Estoy de acuerdo, y por eso añadí pruebas y CI. El desarrollo asistido por IA sube el valor de
-las pruebas automatizadas, no lo baja: se produce más código, nadie lo escribió a mano, y el
-cuello de botella pasa a ser la revisión. Las pruebas son lo que vuelve seguro mezclar ese
-código.
+desarrollar. Estoy de acuerdo, y por eso añadí pruebas y CI. El desarrollo asistido por IA sube
+el valor de las pruebas automatizadas, no lo baja: se produce más código, nadie lo escribió a
+mano, y el cuello de botella pasa a ser la revisión. Las pruebas son lo que vuelve seguro
+mezclar ese código.

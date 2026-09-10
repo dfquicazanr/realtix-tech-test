@@ -60,8 +60,8 @@ export function fromDateInput(value: string, edge: 'start' | 'end'): number | nu
 
       <fieldset>
         <legend class="font-medium">Fechas</legend>
-        <div class="mt-2 flex items-center gap-2">
-          <label class="flex-1">
+        <div class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <label class="min-w-0 flex-1">
             <span class="block text-xs text-slate-500">desde</span>
             <input
               type="date"
@@ -73,7 +73,7 @@ export function fromDateInput(value: string, edge: 'start' | 'end'): number | nu
               (change)="onDateFrom($event)"
             />
           </label>
-          <label class="flex-1">
+          <label class="min-w-0 flex-1">
             <span class="block text-xs text-slate-500">hasta</span>
             <input
               type="date"
